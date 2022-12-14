@@ -6,7 +6,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import Unauthorized
 
-from forms import UserAddForm, LoginForm, MessageForm, CSRFProtectForm
+from forms import UserAddForm, LoginForm, MessageForm, CSRFProtectForm, UserEditForm
 from models import db, connect_db, User, Message
 
 load_dotenv()
@@ -240,7 +240,47 @@ def stop_following(follow_id):
 def profile():
     """Update profile for current user."""
 
-    # IMPLEMENT THIS
+    user = User.query.get(g.user.id)
+    form = UserEditForm(obj=user)
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+
+
+
+
+    # if form.password.data is not user.password:
+
+    #     flash(f"Wrong password, please reenter.")
+
+    #     return render_template("users/edit.html", form=form)
+
+
+    if form.validate_on_submit():
+        user.username = form.username.data
+        user.email = form.email.data
+        user.image_url = form.image_url.data
+        user.header_image_url = form.header_image_url.data
+        user.bio = form.bio.data
+
+        if not g.user.authenticate(user.username, form.password.data):  # <User> or False
+            form.username.errors = ["Invalid username/password."]
+            return render_template("users/edit.html", form=form)
+
+        # db.session.add([user.username, user.email, user.image_url,
+        #     user.header_image_url, user.bio = form.bio.data])
+
+        db.session.commit()
+
+        return redirect(f'/users/{g.user.id}')
+
+    else:
+        return render_template("users/edit.html", form=form)
+
+# user.username, user.email, user.image_url,
+#              user.header_image_url, user.bio
 
 
 @app.post('/users/delete')
@@ -331,7 +371,9 @@ def homepage():
     - logged in: 100 most recent messages of followed_users
     """
 
-    form = CSRFProtectForm()
+    form = g.csrf_form
+    # form = CSRFProtectForm()
+    # g.csrf_form
 
     if g.user:
         messages = (Message
