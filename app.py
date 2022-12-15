@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import Unauthorized
 
 from forms import UserAddForm, LoginForm, MessageForm, CSRFProtectForm, UserEditForm
-from models import db, connect_db, User, Message
+from models import db, connect_db, User, Message, DEFAULT_IMAGE_URL, DEFAULT_HEADER_IMAGE_URL
 
 load_dotenv()
 
@@ -29,7 +29,7 @@ connect_db(app)
 
 
 ##############################################################################
-# User signup/login/logout
+# HERE: User signup/login/logout
 @app.before_request
 def run_csrf_form():
     """Prior to every request instantiate CSRF form and assign globally in Flask to g."""
@@ -118,7 +118,7 @@ def login():
 
     return render_template('users/login.html', form=form, )
 
-
+#HERE
 @app.post('/logout')
 def logout():
     """Handle logout of user and redirect to homepage."""
@@ -127,16 +127,11 @@ def logout():
         do_logout()
         return redirect('/login')
 
-    # else:
-    #     # didn't pass CSRF; ignore logout attempt
-    #     # raise Unauthorized()
-    #     redirect them
-
-
-    #
-
-    # IMPLEMENT THIS AND FIX BUG
-    # DO NOT CHANGE METHOD ON ROUTE
+    #unsure what to do instead of Unauthorized()
+    else:
+        # didn't pass CSRF; ignore logout attempt
+        raise Unauthorized()
+        return redirect()
 
 
 ##############################################################################
@@ -235,42 +230,28 @@ def stop_following(follow_id):
 
     return redirect(f"/users/{g.user.id}/following")
 
-
+#HERE
 @app.route('/users/profile', methods=["GET", "POST"])
 def profile():
     """Update profile for current user."""
-
-    user = User.query.get(g.user.id)
-    form = UserEditForm(obj=user)
 
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-
-
-
-
-    # if form.password.data is not user.password:
-
-    #     flash(f"Wrong password, please reenter.")
-
-    #     return render_template("users/edit.html", form=form)
-
+    user = User.query.get(g.user.id)
+    form = UserEditForm(obj=user)
 
     if form.validate_on_submit():
         user.username = form.username.data
         user.email = form.email.data
         user.image_url = form.image_url.data
-        user.header_image_url = form.header_image_url.data
+        user.header_image_url = form.header_image_url.data or DEFAULT
         user.bio = form.bio.data
 
         if not g.user.authenticate(user.username, form.password.data):  # <User> or False
             form.username.errors = ["Invalid username/password."]
             return render_template("users/edit.html", form=form)
-
-        # db.session.add([user.username, user.email, user.image_url,
-        #     user.header_image_url, user.bio = form.bio.data])
 
         db.session.commit()
 
@@ -278,9 +259,6 @@ def profile():
 
     else:
         return render_template("users/edit.html", form=form)
-
-# user.username, user.email, user.image_url,
-#              user.header_image_url, user.bio
 
 
 @app.post('/users/delete')
@@ -362,7 +340,7 @@ def delete_message(message_id):
 ##############################################################################
 # Homepage and error pages
 
-
+#HERE
 @app.get('/')
 def homepage():
     """Show homepage:
@@ -372,10 +350,6 @@ def homepage():
     """
 
     form = g.csrf_form
-    # form = CSRFProtectForm()
-    # g.csrf_form
-
-
 
     if g.user:
         following_ids = [ user.id for user in g.user.following] + [g.user.id]
@@ -385,8 +359,6 @@ def homepage():
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
-
-
 
         return render_template('home.html', messages=messages, form=form)
 
