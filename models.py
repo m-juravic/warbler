@@ -86,11 +86,9 @@ class User(db.Model):
         backref="following",
     )
 
-    messages_liked = db.relationship(
-        "UserLike",
-        primaryjoin()
-        backref="user_that_likes"
-    )
+    # messages_liked = db.relationship(
+    #     "User",
+    #     secondary="users_likes"
     ##relationship to liked messages
     ## how to make HTML Dry
 
@@ -194,6 +192,9 @@ class UserLike(db.Model):
         db.ForeignKey('messages.id', ondelete="cascade"),
         primary_key=True,
     )
+
+    messages_liked = db.relationship("Message", backref="user_likes")
+    messages_liked = db.relationship("User", backref="user")
 
 
 def connect_db(app):
