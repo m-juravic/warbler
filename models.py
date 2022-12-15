@@ -5,6 +5,7 @@ from datetime import datetime
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 
+
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 
@@ -84,6 +85,14 @@ class User(db.Model):
         secondaryjoin=(Follows.user_following_id == id),
         backref="following",
     )
+
+    messages_liked = db.relationship(
+        "UserLike",
+        primaryjoin()
+        backref="user_that_likes"
+    )
+    ##relationship to liked messages
+    ## how to make HTML Dry
 
     def __repr__(self):
         return f"<User #{self.id}: {self.username}, {self.email}>"
@@ -168,6 +177,22 @@ class Message(db.Model):
         db.Integer,
         db.ForeignKey('users.id', ondelete='CASCADE'),
         nullable=False,
+    )
+
+class UserLike(db.Model):
+
+    __tablename__ = 'users_likes'
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete="cascade"),
+        primary_key=True,
+    )
+
+    message_id = db.Column(
+        db.Integer,
+        db.ForeignKey('messages.id', ondelete="cascade"),
+        primary_key=True,
     )
 
 
