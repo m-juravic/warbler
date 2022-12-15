@@ -86,11 +86,9 @@ class User(db.Model):
         backref="following",
     )
 
-    # messages_liked = db.relationship(
-    #     "User",
-    #     secondary="users_likes"
-    ##relationship to liked messages
-    ## how to make HTML Dry
+    messages_liked = db.relationship("Message", secondary="likes",
+        backref="users_liked")
+
 
     def __repr__(self):
         return f"<User #{self.id}: {self.username}, {self.email}>"
@@ -177,24 +175,23 @@ class Message(db.Model):
         nullable=False,
     )
 
-class UserLike(db.Model):
+class Like(db.Model):
 
-    __tablename__ = 'users_likes'
+    __tablename__ = 'likes'
 
     user_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id', ondelete="cascade"),
-        primary_key=True,
+        nullable=False,
+        primary_key=True
     )
 
     message_id = db.Column(
         db.Integer,
         db.ForeignKey('messages.id', ondelete="cascade"),
-        primary_key=True,
+        nullable=False,
+        primary_key=True
     )
-
-    messages_liked = db.relationship("Message", backref="user_likes")
-    messages_liked = db.relationship("User", backref="user")
 
 
 def connect_db(app):
