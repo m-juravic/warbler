@@ -386,17 +386,38 @@ def homepage():
         return render_template('home-anon.html')
 
 
-@app.route('/toggle_likes')
-def toggle_likes():
+@app.post('/messages/<int:message_id>/like')
+def toggle_likes(message_id):
     "Adds and deletes message to likes table which toggles star fill"
 
-    if form.validate.on_submit():
-        message_id = form.message_id.data
-        user = form.user_id.data
+    form = g.csrf_form
 
-    message = Message.query.get(message_id)
+    message = Message.query.get_or_404(message_id)
+    # breakpoint()
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
 
 
+    if form.validate_on_submit():
+
+        if message in g.user.messages_liked:
+            g.user.messages_liked.remove(message)
+            db.session.commit()
+        else:
+            g.user.messages_liked.append(message)
+            db.session.commit()
+
+    return redirect(f'/messages/{message_id}')
+    # return redirect(request.referrer)
+
+
+#if message on messages_liked
+    #delete
+    #commit it
+#if message not on messages_liked
+    #append it
+    #commit it
 
 
 ##############################################################################

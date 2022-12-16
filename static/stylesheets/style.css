@@ -20,6 +20,11 @@ body.error-404 {
   cursor: pointer;
 }
 
+button {
+  position: relative;
+  z-index: 100;
+}
+
 /* ======================= Nav */
 
 .navbar {
