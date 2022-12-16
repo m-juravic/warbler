@@ -176,6 +176,7 @@ class Message(db.Model):
     )
 
 class Like(db.Model):
+    """An individual Like (Connection of a user <-> messages_liked)"""
 
     __tablename__ = 'likes'
 

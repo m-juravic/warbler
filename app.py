@@ -29,7 +29,8 @@ connect_db(app)
 
 
 ##############################################################################
-# HERE: User signup/login/logout
+# User signup/login/logout
+
 @app.before_request
 def run_csrf_form():
     """Prior to every request instantiate CSRF form and assign globally in Flask to g."""
@@ -118,7 +119,7 @@ def login():
 
     return render_template('users/login.html', form=form, )
 
-#HERE
+
 @app.post('/logout')
 def logout():
     """Handle logout of user and redirect to homepage."""
@@ -126,10 +127,7 @@ def logout():
     if g.csrf_form.validate_on_submit():
         do_logout()
         return redirect('/login')
-
-    #unsure what to do instead of Unauthorized()
     else:
-        # didn't pass CSRF; ignore logout attempt
         raise Unauthorized()
 
 
@@ -194,9 +192,6 @@ def show_followers(user_id):
     return render_template('users/followers.html', user=user)
 
 
-
-
-
 @app.get('/users/<int:user_id>/likes')
 def show_likes(user_id):
     """Show list of likes for this user."""
@@ -207,11 +202,6 @@ def show_likes(user_id):
 
     user = User.query.get_or_404(user_id)
     return render_template('users/likes.html', user=user)
-
-
-
-
-
 
 
 @app.post('/users/follow/<int:follow_id>')
@@ -249,7 +239,7 @@ def stop_following(follow_id):
 
     return redirect(f"/users/{g.user.id}/following")
 
-#HERE
+
 @app.route('/users/profile', methods=["GET", "POST"])
 def profile():
     """Update profile for current user."""
@@ -359,7 +349,6 @@ def delete_message(message_id):
 ##############################################################################
 # Homepage and error pages
 
-#HERE
 @app.get('/')
 def homepage():
     """Show homepage:
@@ -379,25 +368,22 @@ def homepage():
                     .limit(100)
                     .all())
 
-
         return render_template('home.html', messages=messages, form=form)
-
     else:
         return render_template('home-anon.html')
 
 
 @app.post('/messages/<int:message_id>/like')
 def toggle_likes(message_id):
-    "Adds and deletes message to likes table which toggles star fill"
+    "Adds and deletes message to user's list of likes which toggles star fill"
 
     form = g.csrf_form
 
     message = Message.query.get_or_404(message_id)
-    # breakpoint()
+
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
-
 
     if form.validate_on_submit():
 
@@ -409,15 +395,6 @@ def toggle_likes(message_id):
             db.session.commit()
 
     return redirect(f'/messages/{message_id}')
-    # return redirect(request.referrer)
-
-
-#if message on messages_liked
-    #delete
-    #commit it
-#if message not on messages_liked
-    #append it
-    #commit it
 
 
 ##############################################################################
