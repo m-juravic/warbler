@@ -379,10 +379,24 @@ def homepage():
                     .limit(100)
                     .all())
 
+
         return render_template('home.html', messages=messages, form=form)
 
     else:
         return render_template('home-anon.html')
+
+
+@app.route('/toggle_likes')
+def toggle_likes():
+    "Adds and deletes message to likes table which toggles star fill"
+
+    if form.validate.on_submit():
+        message_id = form.message_id.data
+        user = form.user_id.data
+
+    message = Message.query.get(message_id)
+
+
 
 
 ##############################################################################

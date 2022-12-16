@@ -61,13 +61,14 @@
             <div class="message-area">
               <a href="/users/{{ msg.user.id }}">@{{ msg.user.username }}</a>
               <span class="text-muted">{{ msg.timestamp.strftime('%d %B %Y') }}</span>
+              {% if msg not in g.user.messages %}
               <span>
-                <form action="/users/{{ g.user.id }}/likes">
-                  <button>
-                    <i class="bi bi-star"></i>
-                  </button>
+                <form name="message_id" method="POST">
+                  <!-- <a href="/toggle_likes"> <i class="bi bi-star"></i></a> -->
+                  <a href="/toggle_likes"><input type=”button” value=”{{ msg.id }}”><i class="bi bi-star"></i></a>
                 </form>
               </span>
+              {% endif %}
               <p>{{ msg.text }}</p>
             </div>
           </li>

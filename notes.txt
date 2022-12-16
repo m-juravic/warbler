@@ -1,0 +1,16 @@
+if a star is pushed,
+change the html to bi bi-star-fill
+and
+add message like to database and commit
+
+
+if liked star is clicked,
+change the html to bi bi-star
+and delete message from likes database
+
+
+if message is not users message and message in g.user.messages_liked
+then html needs to be bi bi-star-fill
+
+if message is not users message and message not in g.user.messages_liked
+then html needs to be bi bi-star
